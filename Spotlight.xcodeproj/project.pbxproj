@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B1C5C1B1EB5E95E00743EF2 /* Spotlight.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BABE7EA1EB59D3100F3DEB9 /* Spotlight.framework */; };
+		8B1C5C1C1EB5E95E00743EF2 /* Spotlight.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BABE7EA1EB59D3100F3DEB9 /* Spotlight.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8B25AB061EB5A00600D2E593 /* Spotlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B25AB051EB5A00600D2E593 /* Spotlight.swift */; };
 		8BABE7EF1EB59D3100F3DEB9 /* Spotlight.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BABE7ED1EB59D3100F3DEB9 /* Spotlight.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8BC71E781EB59D6F00935587 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC71E771EB59D6F00935587 /* AppDelegate.swift */; };
@@ -15,6 +17,30 @@
 		8BC71E7F1EB59D6F00935587 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BC71E7E1EB59D6F00935587 /* Assets.xcassets */; };
 		8BC71E821EB59D6F00935587 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BC71E801EB59D6F00935587 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8B1C5C1D1EB5E95E00743EF2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8BABE7E11EB59D3100F3DEB9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8BABE7E91EB59D3100F3DEB9;
+			remoteInfo = Spotlight;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8B1C5C1F1EB5E95E00743EF2 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				8B1C5C1C1EB5E95E00743EF2 /* Spotlight.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		8B25AB051EB5A00600D2E593 /* Spotlight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spotlight.swift; sourceTree = "<group>"; };
@@ -42,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B1C5C1B1EB5E95E00743EF2 /* Spotlight.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,10 +156,12 @@
 				8BC71E711EB59D6F00935587 /* Sources */,
 				8BC71E721EB59D6F00935587 /* Frameworks */,
 				8BC71E731EB59D6F00935587 /* Resources */,
+				8B1C5C1F1EB5E95E00743EF2 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8B1C5C1E1EB5E95E00743EF2 /* PBXTargetDependency */,
 			);
 			name = Example;
 			productName = Example;
@@ -218,6 +247,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8B1C5C1E1EB5E95E00743EF2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8BABE7E91EB59D3100F3DEB9 /* Spotlight */;
+			targetProxy = 8B1C5C1D1EB5E95E00743EF2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		8BC71E7B1EB59D6F00935587 /* Main.storyboard */ = {
@@ -382,6 +419,7 @@
 		8BC71E841EB59D6F00935587 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -394,6 +432,7 @@
 		8BC71E851EB59D6F00935587 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
