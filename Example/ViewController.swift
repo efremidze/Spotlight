@@ -60,6 +60,7 @@ class CollectionViewController: UICollectionViewController {
         self.automaticallyAdjustsScrollViewInsets = false
         
         self.navigationItem.title = "Scroll Me"
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "close"), style: .done, target: self, action: #selector(dismissButtonTapped))
         
         let visualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
         visualEffectView.frame = self.view.bounds
@@ -71,6 +72,8 @@ class CollectionViewController: UICollectionViewController {
         self.collectionView?.decelerationRate = UIScrollViewDecelerationRateFast
         self.collectionView?.showsVerticalScrollIndicator = false
         self.collectionView?.register(Cell.self, forCellWithReuseIdentifier: "cell")
+//        self.collectionView?.registerNib(UINib(nibName: PhotoHeaderView.className, bundle: nil), forSupplementaryViewOfKind: PhotoHeaderView.className, withReuseIdentifier: PhotoHeaderView.className)
+//        self.collectionView?.registerNib(UINib(nibName: PhotoFooterView.className, bundle: nil), forSupplementaryViewOfKind: PhotoFooterView.className, withReuseIdentifier: PhotoFooterView.className)
         
         let layout = Layout()
         layout.minimumLineSpacing = 0
@@ -85,6 +88,10 @@ class CollectionViewController: UICollectionViewController {
         }
     }
     
+    @IBAction func dismissButtonTapped(_: AnyObject) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
 }
 
 // MARK: - UICollectionViewDataSource
@@ -95,7 +102,16 @@ extension CollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+        return collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        switch kind {
+        case "PhotoHeaderView", "PhotoFooterView":
+            return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kind, for: indexPath)
+        default:
+            return UICollectionReusableView()
+        }
     }
     
 }
@@ -105,6 +121,47 @@ extension CollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         (cell as? Cell)?.imageView.image = images[indexPath.item]
+        
+//        guard let
+//            cell = cell as? PhotoCollectionViewCell,
+//            image = images[safe: indexPath.item]
+//            else { return }
+//        
+//        cell.configure(withImage: image)
+//        
+//        cell.setSelected(cell.selected, animated: false)
+//        
+//        cell.overlayView.buttonTapped = { _ in
+//            guard let url = image.instagramUrl else { return }
+//            UIApplication.sharedApplication().openURL(url)
+//        }
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+        guard
+            let protocolView = view as? IGImageProtocol,
+            let image = images[safe: indexPath.item]
+        else { return }
+        
+        view.userInteractionEnabled = false
+        
+        protocolView.configure(withImage: image)
+        
+        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
+        visibleSupplementaryViews.setObject(view, forKey: key)
+        
+        if !collectionView.scrolling {
+            scrollViewDidScroll(collectionView)
+        }
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        (cell as? PhotoCollectionViewCell)?.imageView.kf_cancelDownloadTask()
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
+        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
+        visibleSupplementaryViews.removeObjectForKey(key)
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -118,23 +175,113 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return images[indexPath.item].size.scaleAspectFit(boundingSize: collectionView.bounds.size)
+        
+//        var center = collectionView.bounds.height / 2
+//        center += collectionView.contentOffset.y
+//        if let
+//            aIndexPath = collectionView.indexPathsForVisibleItems().sort({ abs(collectionView.collectionViewLayout.layoutAttributesForItemAtIndexPath($0)!.center.y - center) < abs(collectionView.collectionViewLayout.layoutAttributesForItemAtIndexPath($1)!.center.y - center) }).first
+//            where aIndexPath == indexPath
+//        {
+//            return true
+//        } else {
+//            collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: .CenteredVertically, animated: true)
+//            return false
+//        }
     }
     
 }
 
+//// MARK: - UIScrollViewDelegate
+//extension PhotoViewController {
+//    
+//    override func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+//        guard let collectionView = scrollView as? UICollectionView else { return }
+//        collectionView.indexPathsForSelectedItems()?.forEach {
+//            collectionView.deselectItemAtIndexPath($0, animated: true)
+//        }
+//    }
+//    
+//    override func scrollViewDidScroll(scrollView: UIScrollView) {
+//        guard let collectionView = scrollView as? UICollectionView else { return }
+//        var center = collectionView.bounds.height / 2
+//        center += collectionView.contentOffset.y
+//        collectionView.indexPathsForVisibleItems().forEach { indexPath in
+//            guard let cell = collectionView.cellForItemAtIndexPath(indexPath) as? PhotoCollectionViewCell else { return }
+//            
+//            let alpha = max(0, 1 - (abs(cell.center.y - center) / (cell.bounds.height / 2)))
+//            
+//            [cell, visibleSupplementaryViews.objectForKey(keyForElementKind(PhotoHeaderView.className, atIndexPath: indexPath)), visibleSupplementaryViews.objectForKey(keyForElementKind(PhotoFooterView.className, atIndexPath: indexPath))].forEach {
+//                ($0 as? IGImageProtocol)?.setContentAlpha(alpha)
+//            }
+//        }
+//    }
+//    
+//}
+//
+//// MARK: - UICollectionViewDelegateFlowLayout
+//extension PhotoViewController: UICollectionViewDelegateFlowLayout {
+//    
+//    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+//        return images[safe: indexPath.item]?.thumbnailUrl.flatMap { UIImage.imageInMemory(withURL: $0) }?.size.scaleAspectFit(boundingSize: collectionView.bounds.size) ?? collectionView.bounds.size
+//    }
+//    
+//}
+
 // MARK: - Layout
 private class Layout: UICollectionViewFlowLayout {
     
+    var images = [IGImage]()
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        let layoutAttributes = super.layoutAttributesForElements(in: rect)!
+        var array = [UICollectionViewLayoutAttributes]()
+        array += layoutAttributes.flatMap { layoutAttributesForItem(at: $0.indexPath) }
+        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoHeaderView", at: $0.indexPath) }
+        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoFooterView", at: $0.indexPath) }
+        return array
+    }
+    
+//    override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+//        guard let collectionView = collectionView, image = images[safe: indexPath.item] else { return nil }
+//        let layoutAttributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, with: indexPath)
+//        let frame = layoutAttributesForItem(at: indexPath)!.frame
+//        switch elementKind {
+//        case PhotoHeaderView.className:
+//            layoutAttributes.frame.size.height = 38
+//            layoutAttributes.frame.origin.y = frame.minY - layoutAttributes.frame.size.height
+//        case PhotoFooterView.className:
+//            layoutAttributes.frame.origin.y = frame.maxY
+//            layoutAttributes.frame.size.height = min((collectionView.bounds.height / 2) - (frame.height / 2), NSAttributedString(string: image.caption ?? "", minimumLineHeight: 20).calculatedHeight(frame.width) + 10)
+//        default: break
+//        }
+//        layoutAttributes.frame.size.width = frame.width
+//        layoutAttributes.zIndex = 1
+//        return layoutAttributes
+//    }
+    
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-        guard let collectionView = collectionView else { return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity) }
         var proposedContentOffset = proposedContentOffset
+        guard let collectionView = collectionView else { return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity) }
         let halfHeight = collectionView.bounds.height / 2
         proposedContentOffset.y += halfHeight
-        proposedContentOffset.y += (velocity.y * halfHeight)
-        let layoutAttributes = layoutAttributesForElements(in: collectionView.bounds)
+        if -1...1 ~= velocity.y {
+            proposedContentOffset.y += (velocity.y * halfHeight)
+        }
+        let layoutAttributes = layoutAttributesForElements(in: collectionView.bounds)?.filter { $0.representedElementCategory == .cell }
         let closest = layoutAttributes?.sorted { abs($0.center.y - proposedContentOffset.y) < abs($1.center.y - proposedContentOffset.y) }.first ?? UICollectionViewLayoutAttributes()
         return CGPoint(x: proposedContentOffset.x, y: floor(closest.center.y - halfHeight))
     }
+    
+//    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
+//        guard let collectionView = collectionView else { return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity) }
+//        var proposedContentOffset = proposedContentOffset
+//        let halfHeight = collectionView.bounds.height / 2
+//        proposedContentOffset.y += halfHeight
+//        proposedContentOffset.y += (velocity.y * halfHeight)
+//        let layoutAttributes = layoutAttributesForElements(in: collectionView.bounds)
+//        let closest = layoutAttributes?.sorted { abs($0.center.y - proposedContentOffset.y) < abs($1.center.y - proposedContentOffset.y) }.first ?? UICollectionViewLayoutAttributes()
+//        return CGPoint(x: proposedContentOffset.x, y: floor(closest.center.y - halfHeight))
+//    }
     
     override var collectionViewContentSize: CGSize {
         if
@@ -172,4 +319,22 @@ private extension CGSize {
         return AVMakeRect(aspectRatio: self, insideRect: rect).size
     }
     
+}
+
+struct Image {
+    let image: UIImage?
+    let url: URL?
+    let caption: String?
+    let user: User?
+    init(image: UIImage?) {
+        self.image = image
+    }
+    init(url: URL?) {
+        self.url = url
+    }
+}
+
+struct User {
+    let username: String?
+    let imageUrl: URL?
 }
