@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B25AB061EB5A00600D2E593 /* Spotlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B25AB051EB5A00600D2E593 /* Spotlight.swift */; };
 		8BABE7EF1EB59D3100F3DEB9 /* Spotlight.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BABE7ED1EB59D3100F3DEB9 /* Spotlight.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8BC71E781EB59D6F00935587 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC71E771EB59D6F00935587 /* AppDelegate.swift */; };
 		8BC71E7A1EB59D6F00935587 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC71E791EB59D6F00935587 /* ViewController.swift */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8B25AB051EB5A00600D2E593 /* Spotlight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spotlight.swift; sourceTree = "<group>"; };
 		8BABE7EA1EB59D3100F3DEB9 /* Spotlight.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Spotlight.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BABE7ED1EB59D3100F3DEB9 /* Spotlight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Spotlight.h; sourceTree = "<group>"; };
 		8BABE7EE1EB59D3100F3DEB9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				8BABE7ED1EB59D3100F3DEB9 /* Spotlight.h */,
+				8B25AB051EB5A00600D2E593 /* Spotlight.swift */,
 				8BABE7EE1EB59D3100F3DEB9 /* Info.plist */,
 			);
 			name = Spotlight;
@@ -148,6 +151,7 @@
 				TargetAttributes = {
 					8BABE7E91EB59D3100F3DEB9 = {
 						CreatedOnToolsVersion = 8.3.2;
+						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 					};
 					8BC71E741EB59D6F00935587 = {
@@ -200,6 +204,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B25AB061EB5A00600D2E593 /* Spotlight.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +343,7 @@
 		8BABE7F31EB59D3100F3DEB9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -349,6 +355,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.efremidze.Spotlight;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -356,6 +363,7 @@
 		8BABE7F41EB59D3100F3DEB9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
