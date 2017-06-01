@@ -60,7 +60,7 @@ class CollectionViewController: UICollectionViewController {
         self.automaticallyAdjustsScrollViewInsets = false
         
         self.navigationItem.title = "Scroll Me"
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "close"), style: .done, target: self, action: #selector(dismissButtonTapped))
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissButtonTapped))
         
         let visualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
         visualEffectView.frame = self.view.bounds
@@ -72,8 +72,8 @@ class CollectionViewController: UICollectionViewController {
         self.collectionView?.decelerationRate = UIScrollViewDecelerationRateFast
         self.collectionView?.showsVerticalScrollIndicator = false
         self.collectionView?.register(Cell.self, forCellWithReuseIdentifier: "Cell")
-//        self.collectionView?.registerNib(UINib(nibName: PhotoHeaderView.className, bundle: nil), forSupplementaryViewOfKind: PhotoHeaderView.className, withReuseIdentifier: PhotoHeaderView.className)
-//        self.collectionView?.registerNib(UINib(nibName: PhotoFooterView.className, bundle: nil), forSupplementaryViewOfKind: PhotoFooterView.className, withReuseIdentifier: PhotoFooterView.className)
+        self.collectionView?.register(HeaderView.self, forSupplementaryViewOfKind: HeaderView.id, withReuseIdentifier: HeaderView.id)
+        self.collectionView?.register(FooterView.self, forSupplementaryViewOfKind: FooterView.id, withReuseIdentifier: FooterView.id)
         
         let layout = Layout()
         layout.minimumLineSpacing = 0
@@ -105,14 +105,14 @@ extension CollectionViewController {
         return collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
     }
     
-//    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-//        switch kind {
-//        case "PhotoHeaderView", "PhotoFooterView":
-//            return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kind, for: indexPath)
-//        default:
-//            return UICollectionReusableView()
-//        }
-//    }
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        switch kind {
+        case HeaderView.id, FooterView.id:
+            return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kind, for: indexPath)
+        default:
+            return UICollectionReusableView()
+        }
+    }
     
 }
 
@@ -176,18 +176,6 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return images[indexPath.item].size.scaleAspectFit(boundingSize: collectionView.bounds.size)
-        
-//        var center = collectionView.bounds.height / 2
-//        center += collectionView.contentOffset.y
-//        if let
-//            aIndexPath = collectionView.indexPathsForVisibleItems().sort({ abs(collectionView.collectionViewLayout.layoutAttributesForItemAtIndexPath($0)!.center.y - center) < abs(collectionView.collectionViewLayout.layoutAttributesForItemAtIndexPath($1)!.center.y - center) }).first
-//            where aIndexPath == indexPath
-//        {
-//            return true
-//        } else {
-//            collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: .CenteredVertically, animated: true)
-//            return false
-//        }
     }
     
 }
@@ -227,28 +215,28 @@ private class Layout: UICollectionViewFlowLayout {
         let layoutAttributes = super.layoutAttributesForElements(in: rect)!
         var array = [UICollectionViewLayoutAttributes]()
         array += layoutAttributes.flatMap { layoutAttributesForItem(at: $0.indexPath) }
-//        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoHeaderView", at: $0.indexPath) }
-//        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoFooterView", at: $0.indexPath) }
+        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: HeaderView.id, at: $0.indexPath) }
+        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: FooterView.id, at: $0.indexPath) }
         return array
     }
     
-//    override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-//        guard let collectionView = collectionView, image = images[safe: indexPath.item] else { return nil }
-//        let layoutAttributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, with: indexPath)
-//        let frame = layoutAttributesForItem(at: indexPath)!.frame
-//        switch elementKind {
-//        case PhotoHeaderView.className:
-//            layoutAttributes.frame.size.height = 38
-//            layoutAttributes.frame.origin.y = frame.minY - layoutAttributes.frame.size.height
-//        case PhotoFooterView.className:
-//            layoutAttributes.frame.origin.y = frame.maxY
-//            layoutAttributes.frame.size.height = min((collectionView.bounds.height / 2) - (frame.height / 2), NSAttributedString(string: image.caption ?? "", minimumLineHeight: 20).calculatedHeight(frame.width) + 10)
-//        default: break
-//        }
-//        layoutAttributes.frame.size.width = frame.width
-//        layoutAttributes.zIndex = 1
-//        return layoutAttributes
-//    }
+    override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        guard let collectionView = collectionView, image = images[safe: indexPath.item] else { return nil }
+        let layoutAttributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, with: indexPath)
+        let frame = layoutAttributesForItem(at: indexPath)!.frame
+        switch elementKind {
+        case HeaderView.id:
+            layoutAttributes.frame.size.height = 38
+            layoutAttributes.frame.origin.y = frame.minY - layoutAttributes.frame.size.height
+        case FooterView.id:
+            layoutAttributes.frame.origin.y = frame.maxY
+            layoutAttributes.frame.size.height = min((collectionView.bounds.height / 2) - (frame.height / 2), NSAttributedString(string: image.caption ?? "", minimumLineHeight: 20).calculatedHeight(frame.width) + 10)
+        default: break
+        }
+        layoutAttributes.frame.size.width = frame.width
+        layoutAttributes.zIndex = 1
+        return layoutAttributes
+    }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
         var proposedContentOffset = proposedContentOffset
@@ -288,6 +276,9 @@ private class Cell: UICollectionViewCell {
     }()
     
 }
+
+class HeaderView: UICollectionReusableView {}
+class FooterView: UICollectionReusableView {}
 
 // MARK: - CGSize
 private extension CGSize {
@@ -343,3 +334,11 @@ extension Constrainable where Self: UIView {
 }
 
 extension UIView: Constrainable {}
+
+extension NSObject {
+    
+    static var id: String {
+        return String(describing: self)
+    }
+    
+}
