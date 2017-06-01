@@ -71,7 +71,7 @@ class CollectionViewController: UICollectionViewController {
         self.collectionView?.scrollsToTop = false
         self.collectionView?.decelerationRate = UIScrollViewDecelerationRateFast
         self.collectionView?.showsVerticalScrollIndicator = false
-        self.collectionView?.register(Cell.self, forCellWithReuseIdentifier: "cell")
+        self.collectionView?.register(Cell.self, forCellWithReuseIdentifier: "Cell")
 //        self.collectionView?.registerNib(UINib(nibName: PhotoHeaderView.className, bundle: nil), forSupplementaryViewOfKind: PhotoHeaderView.className, withReuseIdentifier: PhotoHeaderView.className)
 //        self.collectionView?.registerNib(UINib(nibName: PhotoFooterView.className, bundle: nil), forSupplementaryViewOfKind: PhotoFooterView.className, withReuseIdentifier: PhotoFooterView.className)
         
@@ -105,14 +105,14 @@ extension CollectionViewController {
         return collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
     }
     
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        switch kind {
-        case "PhotoHeaderView", "PhotoFooterView":
-            return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kind, for: indexPath)
-        default:
-            return UICollectionReusableView()
-        }
-    }
+//    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+//        switch kind {
+//        case "PhotoHeaderView", "PhotoFooterView":
+//            return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kind, for: indexPath)
+//        default:
+//            return UICollectionReusableView()
+//        }
+//    }
     
 }
 
@@ -130,42 +130,43 @@ extension CollectionViewController {
 //        cell.configure(withImage: image)
 //        
 //        cell.setSelected(cell.selected, animated: false)
+    }
+    
+//    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+//        guard
+//            let protocolView = view as? IGImageProtocol,
+//            let image = images[safe: indexPath.item]
+//        else { return }
 //        
-//        cell.overlayView.buttonTapped = { _ in
-//            guard let url = image.instagramUrl else { return }
-//            UIApplication.sharedApplication().openURL(url)
+//        view.userInteractionEnabled = false
+//        
+//        protocolView.configure(withImage: image)
+//        
+//        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
+//        visibleSupplementaryViews.setObject(view, forKey: key)
+//        
+//        if !collectionView.scrolling {
+//            scrollViewDidScroll(collectionView)
 //        }
-    }
+//    }
     
-    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        guard
-            let protocolView = view as? IGImageProtocol,
-            let image = images[safe: indexPath.item]
-        else { return }
-        
-        view.userInteractionEnabled = false
-        
-        protocolView.configure(withImage: image)
-        
-        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
-        visibleSupplementaryViews.setObject(view, forKey: key)
-        
-        if !collectionView.scrolling {
-            scrollViewDidScroll(collectionView)
+//    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
+//        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
+//        visibleSupplementaryViews.removeObjectForKey(key)
+//    }
+    
+    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        var center = collectionView.bounds.height / 2
+        center += collectionView.contentOffset.y
+        if let
+            aIndexPath = collectionView.indexPathsForVisibleItems.sorted(by: { abs(collectionView.collectionViewLayout.layoutAttributesForItem(at: $0)!.center.y - center) < abs(collectionView.collectionViewLayout.layoutAttributesForItem(at: $1)!.center.y - center) }).first,
+            aIndexPath == indexPath
+        {
+            return true
+        } else {
+            collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+            return false
         }
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        (cell as? PhotoCollectionViewCell)?.imageView.kf_cancelDownloadTask()
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
-        visibleSupplementaryViews.removeObjectForKey(key)
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
     }
     
 }
@@ -191,53 +192,43 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout {
     
 }
 
-//// MARK: - UIScrollViewDelegate
-//extension PhotoViewController {
-//    
-//    override func scrollViewWillBeginDragging(scrollView: UIScrollView) {
-//        guard let collectionView = scrollView as? UICollectionView else { return }
-//        collectionView.indexPathsForSelectedItems()?.forEach {
-//            collectionView.deselectItemAtIndexPath($0, animated: true)
-//        }
-//    }
-//    
-//    override func scrollViewDidScroll(scrollView: UIScrollView) {
-//        guard let collectionView = scrollView as? UICollectionView else { return }
-//        var center = collectionView.bounds.height / 2
-//        center += collectionView.contentOffset.y
-//        collectionView.indexPathsForVisibleItems().forEach { indexPath in
-//            guard let cell = collectionView.cellForItemAtIndexPath(indexPath) as? PhotoCollectionViewCell else { return }
-//            
-//            let alpha = max(0, 1 - (abs(cell.center.y - center) / (cell.bounds.height / 2)))
-//            
+// MARK: - UIScrollViewDelegate
+extension CollectionViewController {
+    
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        guard let collectionView = scrollView as? UICollectionView else { return }
+        collectionView.indexPathsForSelectedItems?.forEach {
+            collectionView.deselectItem(at: $0, animated: true)
+        }
+    }
+    
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let collectionView = scrollView as? UICollectionView else { return }
+        var center = collectionView.bounds.height / 2
+        center += collectionView.contentOffset.y
+        collectionView.indexPathsForVisibleItems.forEach { indexPath in
+            guard let cell = collectionView.cellForItem(at: indexPath) as? Cell else { return }
+            
+            let alpha = max(0, 1 - (abs(cell.center.y - center) / (cell.bounds.height / 2)))
 //            [cell, visibleSupplementaryViews.objectForKey(keyForElementKind(PhotoHeaderView.className, atIndexPath: indexPath)), visibleSupplementaryViews.objectForKey(keyForElementKind(PhotoFooterView.className, atIndexPath: indexPath))].forEach {
 //                ($0 as? IGImageProtocol)?.setContentAlpha(alpha)
 //            }
-//        }
-//    }
-//    
-//}
-//
-//// MARK: - UICollectionViewDelegateFlowLayout
-//extension PhotoViewController: UICollectionViewDelegateFlowLayout {
-//    
-//    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-//        return images[safe: indexPath.item]?.thumbnailUrl.flatMap { UIImage.imageInMemory(withURL: $0) }?.size.scaleAspectFit(boundingSize: collectionView.bounds.size) ?? collectionView.bounds.size
-//    }
-//    
-//}
+        }
+    }
+    
+}
 
 // MARK: - Layout
 private class Layout: UICollectionViewFlowLayout {
     
-    var images = [IGImage]()
+//    var images = [IGImage]()
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let layoutAttributes = super.layoutAttributesForElements(in: rect)!
         var array = [UICollectionViewLayoutAttributes]()
         array += layoutAttributes.flatMap { layoutAttributesForItem(at: $0.indexPath) }
-        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoHeaderView", at: $0.indexPath) }
-        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoFooterView", at: $0.indexPath) }
+//        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoHeaderView", at: $0.indexPath) }
+//        array += layoutAttributes.flatMap { layoutAttributesForSupplementaryView(ofKind: "PhotoFooterView", at: $0.indexPath) }
         return array
     }
     
@@ -272,17 +263,6 @@ private class Layout: UICollectionViewFlowLayout {
         return CGPoint(x: proposedContentOffset.x, y: floor(closest.center.y - halfHeight))
     }
     
-//    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-//        guard let collectionView = collectionView else { return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity) }
-//        var proposedContentOffset = proposedContentOffset
-//        let halfHeight = collectionView.bounds.height / 2
-//        proposedContentOffset.y += halfHeight
-//        proposedContentOffset.y += (velocity.y * halfHeight)
-//        let layoutAttributes = layoutAttributesForElements(in: collectionView.bounds)
-//        let closest = layoutAttributes?.sorted { abs($0.center.y - proposedContentOffset.y) < abs($1.center.y - proposedContentOffset.y) }.first ?? UICollectionViewLayoutAttributes()
-//        return CGPoint(x: proposedContentOffset.x, y: floor(closest.center.y - halfHeight))
-//    }
-    
     override var collectionViewContentSize: CGSize {
         if
             let collectionView = collectionView,
@@ -301,10 +281,9 @@ private class Cell: UICollectionViewCell {
     
     lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.frame = self.contentView.bounds
-        imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         imageView.contentMode = .scaleAspectFit
         self.contentView.addSubview(imageView)
+        imageView.edges()
         return imageView
     }()
     
@@ -321,20 +300,46 @@ private extension CGSize {
     
 }
 
-struct Image {
-    let image: UIImage?
-    let url: URL?
-    let caption: String?
-    let user: User?
-    init(image: UIImage?) {
-        self.image = image
+//struct Image {
+//    let image: UIImage?
+//    let url: URL?
+//    let caption: String?
+//    let user: User?
+//    init(image: UIImage?) {
+//        self.image = image
+//    }
+//    init(url: URL?) {
+//        self.url = url
+//    }
+//}
+//
+//struct User {
+//    let username: String?
+//    let imageUrl: URL?
+//}
+
+protocol Constrainable {}
+
+extension Constrainable where Self: UIView {
+    
+    @discardableResult
+    func constrain(constraints: (Self) -> [NSLayoutConstraint]) -> [NSLayoutConstraint] {
+        let constraints = constraints(self)
+        self.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate(constraints)
+        return constraints
     }
-    init(url: URL?) {
-        self.url = url
+    
+    @discardableResult
+    func edges() -> [NSLayoutConstraint] {
+        return constrain {[
+            $0.topAnchor.constraint(equalTo: $0.superview!.topAnchor),
+            $0.leadingAnchor.constraint(equalTo: $0.superview!.leadingAnchor),
+            $0.bottomAnchor.constraint(equalTo: $0.superview!.bottomAnchor),
+            $0.trailingAnchor.constraint(equalTo: $0.superview!.trailingAnchor)
+        ]}
     }
+    
 }
 
-struct User {
-    let username: String?
-    let imageUrl: URL?
-}
+extension UIView: Constrainable {}
