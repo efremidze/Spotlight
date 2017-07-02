@@ -51,7 +51,7 @@ class ViewController: UIViewController {
 
 class CollectionViewController: UICollectionViewController {
     
-    var images = [UIImage]()
+    var images = [Image]()
     var currentImage: UIImage?
     
     override func viewDidLoad() {
@@ -78,6 +78,7 @@ class CollectionViewController: UICollectionViewController {
         let layout = Layout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
+        layout.images = self.images
         self.collectionView?.collectionViewLayout = layout
         
         if
@@ -120,40 +121,36 @@ extension CollectionViewController {
 extension CollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        (cell as? Cell)?.imageView.image = images[indexPath.item]
+//        guard let protocolView = cell as? CellProtocol else { return }
         
-//        guard let
-//            cell = cell as? PhotoCollectionViewCell,
-//            image = images[safe: indexPath.item]
-//            else { return }
-//        
-//        cell.configure(withImage: image)
-//        
+        let image = images[indexPath.item]
+        (cell as? Cell)?.imageView.image = images[indexPath.item]
+//
+//        protocolView.configure(with: image)
+//
 //        cell.setSelected(cell.selected, animated: false)
     }
     
-//    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-//        guard
-//            let protocolView = view as? IGImageProtocol,
-//            let image = images[safe: indexPath.item]
-//        else { return }
-//        
-//        view.userInteractionEnabled = false
-//        
-//        protocolView.configure(withImage: image)
-//        
+    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+//        guard let protocolView = view as? CellProtocol else { return }
+//        let image = images[indexPath.item]
+//
+//        view.isUserInteractionEnabled = false
+//
+//        protocolView.configure(with: image)
+//
 //        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
 //        visibleSupplementaryViews.setObject(view, forKey: key)
-//        
-//        if !collectionView.scrolling {
+//
+//        if !collectionView.isScrolling {
 //            scrollViewDidScroll(collectionView)
 //        }
-//    }
+    }
     
-//    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
 //        let key = keyForElementKind(elementKind, atIndexPath: indexPath)
 //        visibleSupplementaryViews.removeObjectForKey(key)
-//    }
+    }
     
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         var center = collectionView.bounds.height / 2
@@ -209,7 +206,7 @@ extension CollectionViewController {
 // MARK: - Layout
 private class Layout: UICollectionViewFlowLayout {
     
-//    var images = [IGImage]()
+    var images = [Image]()
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let layoutAttributes = super.layoutAttributesForElements(in: rect)!
@@ -221,7 +218,8 @@ private class Layout: UICollectionViewFlowLayout {
     }
     
     override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        guard let collectionView = collectionView, image = images[safe: indexPath.item] else { return nil }
+        guard let collectionView = collectionView else { return nil }
+        let image = images[indexPath.item]
         let layoutAttributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, with: indexPath)
         let frame = layoutAttributesForItem(at: indexPath)!.frame
         switch elementKind {
@@ -230,7 +228,7 @@ private class Layout: UICollectionViewFlowLayout {
             layoutAttributes.frame.origin.y = frame.minY - layoutAttributes.frame.size.height
         case FooterView.id:
             layoutAttributes.frame.origin.y = frame.maxY
-            layoutAttributes.frame.size.height = min((collectionView.bounds.height / 2) - (frame.height / 2), NSAttributedString(string: image.caption ?? "", minimumLineHeight: 20).calculatedHeight(frame.width) + 10)
+            layoutAttributes.frame.size.height = min((collectionView.bounds.height / 2) - (frame.height / 2), NSAttributedString(string: image.caption, minimumLineHeight: 20).calculatedHeight(frame.width) + 10)
         default: break
         }
         layoutAttributes.frame.size.width = frame.width
@@ -291,23 +289,16 @@ private extension CGSize {
     
 }
 
-//struct Image {
-//    let image: UIImage?
-//    let url: URL?
-//    let caption: String?
-//    let user: User?
-//    init(image: UIImage?) {
-//        self.image = image
-//    }
-//    init(url: URL?) {
-//        self.url = url
-//    }
-//}
-//
-//struct User {
-//    let username: String?
-//    let imageUrl: URL?
-//}
+struct Image {
+    let image: UIImage
+    let caption: String
+    let user: User
+}
+
+struct User {
+    let username: String
+    let imageUrl: URL
+}
 
 protocol Constrainable {}
 
@@ -339,6 +330,37 @@ extension NSObject {
     
     static var id: String {
         return String(describing: self)
+    }
+    
+}
+
+extension NSAttributedString {
+    
+    convenience init(string: String, minimumLineHeight: CGFloat) {
+        self.init(string: string, attributes: [NSParagraphStyleAttributeName: NSMutableParagraphStyle(minimumLineHeight: minimumLineHeight)])
+    }
+    
+    func calculatedHeight(_ width: CGFloat) -> CGFloat {
+        let size = CGSize(width: width, height: .greatestFiniteMagnitude)
+        let rect = self.boundingRect(with: size, options: .usesLineFragmentOrigin, context: nil)
+        return ceil(rect.height)
+    }
+    
+}
+
+extension NSMutableParagraphStyle {
+    
+    convenience init(minimumLineHeight: CGFloat) {
+        self.init()
+        self.minimumLineHeight = minimumLineHeight
+    }
+    
+}
+
+extension UIScrollView {
+    
+    var isScrolling: Bool {
+        return isTracking || isDragging || isDecelerating
     }
     
 }
